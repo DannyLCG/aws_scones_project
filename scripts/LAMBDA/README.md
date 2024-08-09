@@ -1,0 +1,2 @@
+# Folder description
+This folder contains the AWS Lambdas Functions utilized in this personal project. These fucntions were chained together in a workflow using AWS Step Functions, the chainnig order is: 1) serializeImageData, 2) predictImageLabel, and 3) filterPredictions. For testing the workflow the definition of the state machine (Step Function)  is provided as a json file in the root dir of this repo, to input the json test file of the 1st Lambda function is enough to test the full workflow.
