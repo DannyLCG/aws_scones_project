@@ -1,0 +1,35 @@
+[project]
+name = "aws-scones-project"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3>=1.43.65",
+    "jsonlines>=4.0.0",
+    "matplotlib>=3.11.1",
+    "numpy>=2.4.6",
+    "pandas>=3.0.5",
+    "pillow>=12.3.0",
+    "sagemaker>=3.0.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[dependency-groups]
+dev = [
+    "moto[all]>=5.2.2",
+    "pytest>=9.1.1",
+    "ruff>=0.16.1",
+]
+infra = [
+    "aws-cdk-lib>=2.150.0",
+    "constructs>=10.0.0",
+]
