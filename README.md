@@ -65,7 +65,7 @@ Model Monitor's captured endpoint I/O was also used inside `starter.ipynb` to pl
 
 - **Source:** [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html), hosted by the University of Toronto
 - **Filtered classes:** `bicycle` (fine label `8`) and `motorcycle` (fine label `48`) — remapped to binary labels `0`/`1` for training
-- **Splits:** Train — 1,000 images (500 bicycle / 500 motorcycle) · Test — 200 images, stored locally under `train/` and `test/` as 32×32 PNGs
+- **Splits:** Train — 1,000 images (500 bicycle / 500 motorcycle) · Test — 200 images, stored locally under `data/train/` and `data/test/` as 32×32 PNGs
 - **Format on disk:** raw pixel rows reshaped to 32×32×3 and saved as PNG, with `.lst` manifest files (`row`, `label`, `s3_path`) for SageMaker's image-classification input format
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -121,7 +121,7 @@ Depending on the outcome, there are two ways to use this repo:
 This is a notebook-and-Lambda-driven AWS project rather than a standalone script, so there's no local inference path — but everything needed to understand and audit the workflow is in the repo:
 
 - `starter.ipynb` — the full ETL → training → deployment → monitoring notebook
-- `train/` and `test/` — the 1,000/200 filtered CIFAR-100 images used for training and as Step Function test payloads
+- `data/train/` and `data/test/` — the 1,000/200 filtered CIFAR-100 images used for training and as Step Function test payloads
 - `scripts/LAMBDA/` — the three Lambda functions' source and their JSON test events
 - `SconestateMachine_definition.json` — the Step Functions state machine definition
 - `step_function_screenshot.png` / `step_function_fail_screenshot.png` / `stepfunctions_graph.png` — proof of a passing and a threshold-failing execution, plus the state machine graph
