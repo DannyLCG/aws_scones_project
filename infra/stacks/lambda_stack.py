@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aws_cdk import Stack
 from aws_cdk import aws_lambda as _lambda
+from aws_cdk import aws_s3 as s3
 from constructs import Construct
 
 # Resolve src/lambdas/ relative to this file, not the directory cdk synth runs from
@@ -17,13 +18,24 @@ class LambdaStack(Stack):
         self,
         scope: Construct,
         construct_id: str,
+        data_bucket: s3.IBucket,
         confidence_threshold: str = "0.8",
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # TODO: serializeImageData function (src/lambdas/serialize_image_data), s3:GetObject on data bucket
         # TODO: predictImageLabel function (src/lambdas/predict_image_label), sagemaker:InvokeEndpoint + ENDPOINT_NAME env var
+
+        # Deploy serialize_image_data as-is: stdlib + boto3 only, nothing to bundle
+        self.serialize_image_data = _lambda.Function(
+            self,
+            "SerializeImageData",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="handler.lambda_handler",
+            code=_lambda.Code.from_asset(str(LAMBDA_SRC / "serialize_image_data")),
+        )
+        # Grant read on exactly this bucket, not blanket S3 access
+        data_bucket.grant_read(self.serialize_image_data)
 
         # Deploy filter_predictions as-is: pure Python, nothing to bundle
         self.filter_predictions = _lambda.Function(
