@@ -1,19 +1,14 @@
 """
-Unit tests for src/lambdas/serialize_image_data/handler.py.
+Unit tests for the 'serialize_image_data' lambda function
+`src/lambdas/serialize_image_data/handler.py.`
 
-Runs against a mocked S3 bucket via moto — no real AWS involved.
+Runs against a mocked S3 bucket via the moto lib
 """
 import base64
 import json
-import os
 from pathlib import Path
 
-# Force fake credentials before boto3 is ever touched, so a mocking gap fails
-# loudly (bad credentials) instead of ever reaching real AWS
-os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
-
+# Fake AWS credentials and moto's botocore hook come from tests/conftest.py
 import boto3
 from moto import mock_aws
 
@@ -43,12 +38,12 @@ def test_lambda_handler_downloads_and_encodes_the_target_image():
     # Run the handler against the mocked bucket
     result = lambda_handler(event, context=None)
 
-    # Confirm the bucket/key are echoed back and inferences starts empty
+    # Confirm the bucket/key are echoed back and inferences start empty
     assert result["statusCode"] == 200
     assert result["body"]["s3_bucket"] == event["s3_bucket"]
     assert result["body"]["s3_key"] == event["s3_key"]
     assert result["body"]["inferences"] == []
 
-    # Confirm the image was faithfully base64-encoded, not corrupted along the way
+    # Confirm the image wa base64-encoded and is not corrupted
     expected = base64.b64encode(image_path.read_bytes()).decode("utf-8")
     assert result["body"]["image_data"] == expected
