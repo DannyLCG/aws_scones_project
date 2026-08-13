@@ -37,3 +37,11 @@ cdk.out/
 # Personal
 docs/migration-guide.html
 TODO
+
+# cdk-dia's intermediate graphviz source; the rendered .png is the artifact
+docs/architecture.dot
+
+# CIFAR source archive — ~169MB, cached only to regenerate data/*.lst.
+# The generated manifests are small and ARE committed, so scripts/train.py
+# never needs this file.
+data/.cifar-100-python.tar.gz
