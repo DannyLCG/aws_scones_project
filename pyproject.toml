@@ -28,6 +28,7 @@ dev = [
     "moto[all]>=5.2.2",
     "pytest>=9.1.1",
     "ruff>=0.16.1",
+    "seaborn>=0.13.2",
 ]
 infra = [
     "aws-cdk-lib>=2.150.0",
