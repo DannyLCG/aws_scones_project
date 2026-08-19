@@ -1,4 +1,5 @@
-"""CDK entry point.
+"""
+CDK entry point.
 
 Stacks are split by lifetime, not by service:
 
@@ -22,6 +23,30 @@ from stacks.endpoint_stack import EndpointStack
 from stacks.lambda_stack import LambdaStack
 from stacks.monitor_stack import MonitorStack
 from stacks.stepfunctions_stack import StepFunctionsStack
+
+
+def detect_training_user() -> str | None:
+    """
+    Return the caller's own IAM user name, or None if there isn't one
+
+    scripts/train.py calls CreateTrainingJob as the developer, so that identity
+    needs iam:PassRole on the SageMaker execution role. Deriving the name from
+    the current credentials means a bare `cdk deploy SconesDataStack` keeps the
+    grant instead of silently deleting it — and anyone cloning this repo gets
+    their own identity without editing anything or remembering a flag
+    """
+    try:
+        import boto3
+
+        arn = boto3.client("sts").get_caller_identity()["Arn"]
+    except Exception:
+        # When no credentials, or no permission to ask: skip the grant rather than
+        # breaking synth. Deploys that need it can still pass -c training_user
+        return None
+    # arn:aws:iam::<account>:user/<name> is the only shape with a user to
+    # attach a policy to; assumed roles and SSO sessions have none.
+    return arn.rsplit("/", 1)[-1] if ":user/" in arn else None
+
 
 app = cdk.App()
 
@@ -50,12 +75,14 @@ env = cdk.Environment(account=os.environ.get("CDK_DEFAULT_ACCOUNT"), region=REGI
 
 # Stand up the persistent foundation first so its bucket and role can be
 # referenced by everything downstream. training_user names the IAM user that
-# runs scripts/train.py, which needs iam:PassRole on the execution role:
-#   cdk deploy SconesDataStack -c training_user=scones-dev
+# runs scripts/train.py, which needs iam:PassRole on the execution role.
+# -c training_user=<name> overrides; otherwise it is whoever is deploying.
+training_user = app.node.try_get_context("training_user") or detect_training_user()
+
 data_stack = DataStack(
     app,
     "SconesDataStack",
-    training_user=app.node.try_get_context("training_user"),
+    training_user=training_user,
     env=env,
 )
 

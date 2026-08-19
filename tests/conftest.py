@@ -19,4 +19,6 @@ os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 # Avoid a crash when AWS_PROFILE is set to a profile name that doesn't exist locally
 os.environ.pop("AWS_PROFILE", None)
 
-import moto  # (imported for its botocore handler registration)
+# noqa is load-bearing: without it `ruff --fix` deletes this "unused" import
+# and every mocked S3 call silently leaks to real AWS again
+import moto  # noqa: E402,F401  (imported for its botocore handler registration)
